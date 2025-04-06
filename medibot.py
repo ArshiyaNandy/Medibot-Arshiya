@@ -1,19 +1,21 @@
 import os
 import streamlit as st
-from langchain_community.embeddings import HuggingFaceEmbeddings  # ✅ updated import
+from dotenv import load_dotenv, find_dotenv
+from sentence_transformers import SentenceTransformer
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
 from langchain_huggingface import HuggingFaceEndpoint
 
-from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
 DB_FAISS_PATH = "vectorstore/db_faiss"
 
 @st.cache_resource
 def get_vectorstore():
-    embedding_model = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')  # ✅ updated usage
+    local_model = SentenceTransformer('./local_model')  # 🔥 Load from local directory
+    embedding_model = HuggingFaceEmbeddings(model=local_model)  # ✅ Use it in LangChain
     db = FAISS.load_local(DB_FAISS_PATH, embedding_model, allow_dangerous_deserialization=True)
     return db
 
